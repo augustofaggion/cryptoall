@@ -12,4 +12,14 @@ class Crypto < ApplicationRecord
     def upcase_crypto_code
       self.crypto_code = crypto_code.upcase if crypto_code.present?
     end
+
+    def self.group_and_sum(user)
+      where(user: user).group(:crypto_name, :crypto_code).select(
+        'crypto_name,
+         crypto_code,
+         SUM(crypto_amount) as total_amount,
+         SUM(euro_invested) as total_invested,
+         (SUM(euro_invested) / SUM(crypto_amount)) as average_price'
+      )
+    end
 end

@@ -33,20 +33,10 @@
       <%= render "shared/guest_navbar" %>
     <% end %>
       <%= yield %>
-     <% if notice %>
-    <div class="alert alert-success fixed-bottom alert-dismissible fade show" role="alert">
-      <%= notice %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  <% end %>
+
 
   <!-- Show the alert only if an alert exists -->
-  <% if alert %>
-    <div class="alert alert-danger fixed-bottom alert-dismissible fade show" role="alert">
-      <%= alert %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  <% end %>
+
     </main>
   </body>
 </html>
