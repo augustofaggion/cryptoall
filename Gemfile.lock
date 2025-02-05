@@ -108,6 +108,7 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.1)
       railties (>= 6.0.0)
+    csv (3.3.2)
     date (3.4.1)
     debug (1.10.0)
       irb (~> 1.10)
@@ -162,6 +163,10 @@ GEM
       guard-compat (~> 1.0)
       multi_json (~> 1.8)
     http_parser.rb (0.8.0)
+    httparty (0.22.0)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -213,6 +218,8 @@ GEM
     minitest (5.25.4)
     msgpack (1.7.5)
     multi_json (1.15.0)
+    multi_xml (0.7.1)
+      bigdecimal (~> 3.1)
     nenv (0.3.0)
     net-imap (0.5.5)
       date
@@ -436,6 +443,7 @@ DEPENDENCIES
   dotenv-rails
   guard
   guard-livereload
+  httparty
   importmap-rails
   jbuilder
   jquery-rails

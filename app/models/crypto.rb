@@ -1,6 +1,8 @@
 class Crypto < ApplicationRecord
   belongs_to :user
 
+  attr_accessor :live_price
+
   validates :crypto_name, :crypto_code, :crypto_amount, :euro_invested, presence: true
 
   before_save :capitalize_crypto_name, :upcase_crypto_code

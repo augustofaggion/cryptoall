@@ -77,3 +77,6 @@ gem "supabase"
 gem 'bootstrap', '~> 5.3.3'
 
 gem 'jquery-rails'
+
+# Gemfile
+gem 'httparty'

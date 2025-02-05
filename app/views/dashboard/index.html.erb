@@ -1,3 +1,4 @@
+<!-- app/views/dashboard/index.html.erb -->
 <div class="container mt-5 text-center">
   <h1 class="text-primary fw-bold">Welcome to your Crypto Dashboard, <%= current_user.first_name %>!</h1>
 
@@ -18,7 +19,8 @@
             <th>Code</th>
             <th>Total Amount</th>
             <th>Total Invested (€)</th>
-            <th>Average Price per Crypto(€)</th> <!-- New Column -->
+            <th>Average Price (€)</th>
+            <th>Live Price (€)</th> <!-- New Column -->
           </tr>
         </thead>
         <tbody>
@@ -28,7 +30,14 @@
               <td><%= crypto.crypto_code %></td>
               <td><%= crypto.total_amount %></td>
               <td><%= number_to_currency(crypto.total_invested, unit: "€", separator: ",", delimiter: ".") %></td>
-              <td><%= number_to_currency(crypto.average_price, unit: "€", separator: ",", delimiter: ".") %></td> <!-- New Column -->
+              <td><%= number_to_currency(crypto.average_price, unit: "€", separator: ",", delimiter: ".") %></td>
+              <td>
+                <% if crypto.live_price %>
+                  <%= number_to_currency(crypto.live_price, unit: "€", separator: ",", delimiter: ".") %>
+                <% else %>
+                  N/A
+                <% end %>
+              </td>
             </tr>
           <% end %>
         </tbody>
