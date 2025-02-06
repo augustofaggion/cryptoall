@@ -42,8 +42,11 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+RUN if [ "$RAILS_ENV" = "development" ]; then cp .env /app/.env; fi
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
+
+RUN bundle exec rake assets:precompile
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
