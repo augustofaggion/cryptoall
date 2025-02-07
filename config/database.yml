@@ -18,6 +18,9 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  database: <%= ENV["DATABASE_URL"] %>
+  api_key: <%= ENV["API_KEY_SUPABASE"] %>
+  api_link: <%= ENV["API_LINK_SUPABASE"] %>
 
 
 development:
@@ -81,8 +84,8 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: cryptoall_production
-    username: cryptoall
+    database: <%= ENV["DATABASE_URL"] %>
+    username: <%= ENV["API_KEY_SUPABASE"] %>
     password: <%= ENV["CRYPTOALL_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
