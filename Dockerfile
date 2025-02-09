@@ -37,6 +37,8 @@ RUN apt-get update -qq && \
       npm \
       git \
       pkg-config && \
+      libxml2-dev \
+      libxslt1-dev \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Install application gems
