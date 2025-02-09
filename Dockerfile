@@ -21,20 +21,25 @@ ENV RAILS_ENV="production" \
 FROM base AS build
 
 # Install build dependencies
+# Install necessary packages for Nokogiri and other gems
+# Install necessary system dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       build-essential \
       libpq-dev \
-      nodejs \
-      npm \
       git \
+      curl \
       pkg-config \
       libxml2-dev \
       libxslt1-dev \
       liblzma-dev \
       libcurl4-openssl-dev \
       libssl-dev && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+
 
 # Install Bundler
 RUN gem install bundler -v 2.5.23
