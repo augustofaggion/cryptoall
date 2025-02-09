@@ -1,34 +1,26 @@
 # syntax=docker/dockerfile:1
-# check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t cryptoall .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name cryptoall cryptoall
-
-# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.3.3
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
 WORKDIR /rails
 
-# Install base packages
+# Install base system dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Set production environment
+# Set production environment variables
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development" \
+    BUNDLE_FROZEN="false"
 
-# Throw-away build stage to reduce size of final image
+# Build stage
 FROM base AS build
 
-# Install packages needed to build gems
+# Install build dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
       build-essential \
@@ -36,16 +28,41 @@ RUN apt-get update -qq && \
       nodejs \
       npm \
       git \
-      pkg-config && \
+      pkg-config \
       libxml2-dev \
       libxslt1-dev \
+      liblzma-dev \
+      libcurl4-openssl-dev \
+      libssl-dev && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Install application gems
+# Install Bundler
+RUN gem install bundler -v 2.5.23
+
+# Copy application dependencies
 COPY Gemfile Gemfile.lock ./
+
+# Ensure Gemfile.lock is not frozen
+RUN bundle config set frozen false
+
+# Update net-pop separately to avoid dependency conflicts
+RUN bundle update net-pop
+
+# Install gems
 RUN bundle install
 
-# Verify the rails executable is installed
+# Debugging: Check if gems are installed
+RUN bundle list
+
+# Cleanup (Separate cleanup to isolate potential issues)
+RUN rm -rf ~/.bundle/
+RUN rm -rf /usr/local/bundle/ruby/*/cache
+RUN rm -rf /usr/local/bundle/ruby/*/bundler/gems/*/.git
+
+# Precompile Bootsnap
+RUN bundle exec bootsnap precompile --gemfile
+
+# Verify Rails installation
 RUN bundle exec rails --version
 
 # Copy application code
@@ -54,28 +71,30 @@ COPY . /rails
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile assets
+RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
 
-# Final stage for app image
+
+# Final app image
 FROM base
 
-# Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+# Copy built artifacts
+COPY --from=build /usr/local/bundle /usr/local/bundle
 COPY --from=build /rails /rails
 
-# Verify the rails executable is copied
+# Verify the Rails executable is copied
 RUN ls -l /rails/bin/rails
 
-# Run and own only the runtime files as a non-root user for security
+# Run as non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
-USER 1000:1000
+    chown -R rails:rails /rails/db /rails/log /rails/storage /rails/tmp
+
+USER rails
 
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-# Start server via Thruster by default, this can be overwritten at runtime
+# Start the Rails server
 EXPOSE 80
 CMD ["bundle", "exec", "/rails/bin/rails", "server", "-b", "0.0.0.0"]
