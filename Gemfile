@@ -82,4 +82,4 @@ gem 'jquery-rails'
 gem 'httparty'
 
 gem 'nokogiri', '~> 1.15.0'
-gem 'psych', '~> 5.1.0'
+gem 'psych', '~> 5.2.3'
