@@ -81,5 +81,5 @@ gem 'jquery-rails'
 # Gemfile
 gem 'httparty'
 
-gem 'nokogiri', '~> 1.15.0'
+gem 'nokogiri', '~> 1.18.2'
 gem 'psych', '~> 5.1.0'
